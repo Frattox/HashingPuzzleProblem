@@ -1,0 +1,93 @@
+package HashingPuzzle;
+
+
+//lo scopo del programma è ottenere tramite un numero n la sua chiave corrispondente
+/*
+ * dati:
+ * 	numero di input (n)
+ * 	un alfabeto	(e la sua length)
+ * 	un numero di celle in cui possono variare i caratteri (d)
+ */
+public class test {
+
+	private int MIN = 'A';
+	private int MAX = 'Z';
+	//lunghezza dell'alfabeto
+	private int length = MAX-MIN+1;
+	
+	//vettore dove inserire i caratteri in ascii
+	private int[] v;
+	private int d;
+	
+	public test(int d)
+	{
+		this.d = d;
+		v = new int[d];
+		
+		//inizializza le celle del vettore a MIN
+		for(int i=0; i<d; i++)
+			v[i]=MIN;
+	}
+	
+	/*
+	 * calcola la stringa corrispondente ad n
+	 */
+	public String esatto(int n)
+	{
+		//disposizioni con ripetizioni totali
+		int totDisp = (int)Math.pow(length, d);
+		
+		//0<n<totDisp
+		if(n>=totDisp || n<0)
+			throw new IllegalArgumentException("Numero di iterazioni non corretto");
+		/*
+		 * numero di iterazioni, inizialmente uguale alla iterazione richiesta
+		 */
+		int iterazioni = n;	
+		
+		/*
+		 * cosa fa il for:
+		 * 1.x		si ottiene il resto della divisione fra il numero di iterazioni corrente
+		 * 			e la lunghezza dell'alfabeto, così si ottiene il numero di iterazioni
+		 * 			dopo aver superato l'alfabeto un tot volte (ovvero iterazioni/length),
+		 * 			come se fosse una coda unita fra i suoi estremi, la A viene dopo la Z
+		 * 
+		 * 2.v[i]	si somma ad ogni cella del vettore il resto di questa divisione,
+		 * 			che sicuramente sarà minore della lunghezza dell'alfabeto, dato che il
+		 * 			resto si ottiene proprio dalla divisione con essa
+		 * 			0<x<lengthAlfabeto
+		 * 			si somma perchè stiamo considerando gli ascii dei caratteri
+		 * 
+		 * 3.		a questo punto è finita la cella v[i], che inizialmente è l'ultima del vettore,
+		 * 			si divide iterazioni per la lunghezza dell'alfabeto e si decrementa l'indice
+		 * 			del vettore, così si passa a considerare la cella precedente e fare lo stesso procedimento
+		 * 			iterativamente, fin tanto che iterazioni non arriva a 0 (eventualmente anche i>=0)
+		 * 
+		 */
+		for(int i=d-1; iterazioni!=0 && i>=0; i--)
+		{
+			int x = iterazioni%length;
+			v[i] = v[i] + x;
+			iterazioni /= length;
+		}
+		return converti(v);
+	}
+	
+	public String converti(int[] v)
+	{
+		StringBuilder sb = new StringBuilder(15);
+		for(int i=0; i<v.length; i++)
+		{
+			if(v[i]!=0)
+				sb.append((char)v[i]);
+		}
+		return sb.toString();
+	}
+	
+	public static void main(String...args)
+	{
+		test t = new test(3);
+		System.out.print("K = "+t.esatto(0));
+	}
+	
+}

@@ -1,0 +1,121 @@
+package HashingPuzzle;
+
+import org.apache.commons.codec.digest.DigestUtils;
+
+public class ThreadHashing extends Thread{
+	
+	//range inizio-fine di disposizioni associato al thread
+	private int inizio;
+	private int fine;
+	
+	//range dell'alfabeto da considerare
+	private final int MIN;
+	private final int MAX;
+	//lunghezza dell'alfabeto
+	private int length;
+	
+	private int[] v;
+	
+	private int d;
+	
+	//numero di celle dell'array v da considerare di volta in volta (1-n)
+	private int n;
+
+	private String s;
+	private String k;
+	
+	private boolean verifica;
+	
+	public ThreadHashing(int inizio, int fine, String s, int d, int n, int MIN, int MAX)
+	{
+		this.inizio=inizio;
+		this.fine=fine;
+		this.s = s;
+		this.d = d;
+		this.n = n;
+		this.MIN = MIN;
+		this.MAX = MAX;
+		length = MAX-MIN+1;
+		v = new int[n];
+		k="";
+		verifica = false;
+		
+		//inizializza le celle del vettore a MIN
+		init();
+	}
+	
+	public void init()
+	{
+		for(int i=0; i<n; i++)
+			v[i]=MIN;
+	}
+	
+	public boolean verifica()
+	{return verifica;}
+	
+	public String key()
+	{return k;}
+	
+	@Override
+	public void run()
+	{
+		DigestUtils du = new DigestUtils("SHA3-256");
+		for(int i=inizio; i<=fine;i++)
+		{
+			init();
+			k = esatto(i);
+			String h = du.digestAsHex(s+k);
+			if(check(h))
+			{
+				verifica = true;
+				this.getThreadGroup().interrupt();
+				break;
+			}
+			
+		}
+		
+	}
+	private boolean check(String h) {
+		int j;
+		for(j=0; j<d; j++)
+			if(h.charAt(j)!='0')
+				return false;
+		System.out.println();
+		return h.charAt(j++)!='0';
+	}
+
+	/*
+	 * calcola la stringa esatta corrispondente ad n
+	 */
+	private String esatto(int iterazioni)
+	{
+		/*
+		 * numero di iterazioni, inizialmente uguale alla iterazione richiesta
+		 */
+		
+		int cont = 0;
+		for(int i=n-1; iterazioni>=0; i--)
+		{
+			int x = iterazioni%length;
+			v[i] = v[i] + x;
+			iterazioni /= length;
+			iterazioni--;
+			cont++;
+		}
+		return converti(v,cont);
+	}
+	
+	public String converti(int[] v, int cont)
+	{
+		StringBuilder sb = new StringBuilder(15);
+		for(int i=v.length-cont; i<v.length; i++)
+		{
+			if(v[i]!=0)
+				sb.append((char)v[i]);
+		}
+		return sb.toString();
+	}
+	
+	
+	
+}

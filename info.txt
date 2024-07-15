@@ -1,0 +1,8 @@
+Questa e' l'implentazione del problema dell'Hashing puzzle, a cura di Farfaglia Andrea (234488) e Frattolillo Francesco (231769).
+La chiave trovata è k="X\F;NQ", affronteremo i dettagli nell'eventuale presentazione power point.
+
+Speed up: sp=T(1)/T(nThreads)=10.5
+T(1) = 1096 s
+T(nThreads) = 104 s
+nThreads = cores*10
+cores=4

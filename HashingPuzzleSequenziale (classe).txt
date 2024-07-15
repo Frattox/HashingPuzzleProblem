@@ -1,0 +1,122 @@
+package HashingPuzzle;
+
+import java.util.LinkedList;
+import java.util.ListIterator;
+
+import org.apache.commons.codec.digest.DigestUtils;
+
+public class HashingPuzzleSequenziale{
+	
+	String s = "SisOp-CorsoA-Hashing-Puzzle-";
+	int d = 7;
+	private final int MIN = (int) ':';
+	private final int MAX = (int) ']';
+	private LinkedList<Integer> lista;
+	private int n;
+	
+	public HashingPuzzleSequenziale()
+	{
+		lista = new LinkedList<>();
+		
+		//si inizia da min-1 perchè così il primo successivo sarà proprio min
+		lista.add(MIN-1);
+		n = 6;
+	}
+	
+	public boolean run(String k)
+	{
+		String h = new DigestUtils("SHA3-256").digestAsHex(s+k);
+		int i=0;
+		for(; i<d; i++)
+		{
+			if(h.charAt(i)!='0')
+			{
+				return false;
+			}
+		}
+		if(h.charAt(i++)=='0')
+			return false;
+		else
+			return true;
+		
+	}//run
+	
+	//SUCCESSIVO ITERATIVO
+		public String successivo()
+		{
+			ListIterator<Integer> lit = lista.listIterator();
+			
+			//numero di cambi di carattere
+			//utile nel caso in cui un carattere arrivi ad avere codice ascii corrispondente
+			//a max
+			boolean cambi = false;
+			while(lit.hasNext())
+			{
+				int x = lit.next();
+				
+				//se l'elemento nella lista ancora non è arrivato a max, si può variare
+				//in questo caso si modifica la variabile cambi e si può fermare il ciclo,
+				//dato che la stringa da restituire è già pronta da restituire
+				if(x<MAX)
+				{
+					lit.set(++x);
+					cambi = true;
+					break;
+				}
+				
+				//altrimenti bisogna settarlo nuovamente a min
+				else 
+				{
+					lit.set(MIN);
+				}	
+			}//while
+			
+			//se non ci sono stati cambi, vuol dire che la lista è composta solo da max
+			//quindi bisogna aggiungere un nuovo nodo
+			if(!cambi)
+				//sempre se la lista non fosse arrivata al numero n di elementi massimo che può
+				//contenere
+				if(lista.size()<n)
+				{
+					lista.add(MIN);
+				}
+				//in caso contrario restituisce null, per dire che è arrivata all'ultima disposizione di k
+				else
+				{
+					return null;
+				}
+			
+			//restituisce la lista convertita in stringa
+			return converti();
+				
+		}//successivo
+		
+		private String converti() {
+			StringBuilder sb = new StringBuilder(6);
+			ListIterator<Integer> lit = lista.listIterator(lista.size());
+			while(lit.hasPrevious())
+			{
+				int x = lit.previous();
+				char c = (char) x;
+				sb.append(c);
+			}
+			return sb.toString();
+		}
+		
+		public static void main(String...args)
+		{
+			
+			String k = "";
+			
+			HashingPuzzleSequenziale hps = new HashingPuzzleSequenziale();
+			
+			while(true)
+			{
+				k = hps.successivo();
+				if(hps.run(k))
+					break;
+			}
+			System.out.println("K = "+k);
+		}
+	
+}

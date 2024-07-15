@@ -1,0 +1,60 @@
+package HashingPuzzle;
+
+public class HashingPuzzle {
+
+	public static void main(String...args)
+	{
+		int inizio = 0;
+		int fine;
+		int MIN = ':';
+		int MAX = ']';
+		int length = MAX-MIN+1;
+		int d = 7;
+		int n = 6;
+		String k = "";
+		String s = "SisOp-CorsoA-Hashing-Puzzle-";
+		
+		//disposizioni con ripetizioni totali
+		int totDisp = 0;
+		for(int i=1; i<=n; i++)
+			totDisp += Math.pow(length, i);
+		
+		int cores = Runtime.getRuntime().availableProcessors();
+		int nThreads = cores;
+		
+		int rimanenti = totDisp%nThreads;
+		int rangeDisp = totDisp/nThreads;
+		fine = rangeDisp + rimanenti;
+		ThreadHashing[] T = new ThreadHashing[nThreads];
+		
+		long start = System.currentTimeMillis();
+		try
+		{
+			for(int i=0; i<nThreads; ++i)
+			{
+				T[i] = new ThreadHashing(inizio,fine,s,d,n,MIN,MAX);
+				T[i].start();
+				inizio = fine+1;
+				fine += rangeDisp;
+			}
+				for(int i=0; i<nThreads; ++i)
+				{
+					T[i].join();
+				}
+		}catch(InterruptedException e)
+		{}
+		
+		for(int i=0; i<nThreads; ++i)
+		{
+			if(T[i].verifica())
+			{
+				k = T[i].key();
+				break;
+			}
+		}
+		
+		long end = System.currentTimeMillis();
+		System.out.println("K = "+k);
+		System.out.print("Time: "+(end-start));
+	}
+}
